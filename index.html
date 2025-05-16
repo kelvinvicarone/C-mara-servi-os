@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Câmara Serviços</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #1E3A8A;
+            --primary-green: #065F46;
+            --secondary-blue: #3B82F6;
+            --secondary-green: #10B981;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #F3F4F6;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-green));
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary-blue), var(--secondary-green));
+        }
+        
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+        
+        .tab-active {
+            border-bottom: 3px solid var(--primary-blue);
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+        
+        .vereador-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+        
+        .map-container {
+            height: 300px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Login Screen (shown by default) -->
+    <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+            <div class="text-center mb-8">
+                <div class="gradient-bg text-white rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-landmark text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">Câmara Serviços</h2>
+                <p class="text-gray-600">Acesse sua conta</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">E-mail</label>
+                    <input type="email" id="email" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
+                    <input type="password" id="password" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="remember-me" class="ml-2 block text-sm text-gray-700">Lembrar-me</label>
+                    </div>
+                    
+                    <div class="text-sm">
+                        <a href="#" class="font-medium text-blue-600 hover:text-blue-500">Esqueceu sua senha?</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <button type="submit" class="w-full btn-primary text-white py-2 px-4 rounded-md shadow-sm hover:shadow-md transition-all">Entrar</button>
+                </div>
+                
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white text-gray-500">Ou entre com</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <button type="button" id="googleLogin" class="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 rounded-md shadow-sm py-2 px-4 hover:bg-gray-50 transition-all">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo" class="h-5 w-5">
+                        <span>Google</span>
+                    </button>
+                </div>
+                
+                <div class="text-center text-sm">
+                    <span class="text-gray-600">Não tem uma conta?</span>
+                    <a href="#" class="font-medium text-blue-600 hover:text-blue-500">Cadastre-se</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App (hidden by default) -->
+    <div id="appContainer" class="hidden">
+        <!-- Header -->
+        <header class="gradient-bg text-white shadow-md">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="bg-white rounded-full p-2">
+                        <i class="fas fa-landmark text-blue-800"></i>
+                    </div>
+                    <h1 class="text-xl font-bold">Câmara Serviços</h1>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 rounded-full hover:bg-blue-700 transition-all">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <button id="logoutBtn" class="p-2 rounded-full hover:bg-blue-700 transition-all">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-4 py-6">
+            <!-- Tabs Navigation -->
+            <div class="flex border-b border-gray-200 mb-6">
+                <button id="homeTab" class="tab-active px-4 py-2 text-sm font-medium">Início</button>
+                <button id="vereadoresTab" class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">Vereadores</button>
+                <button id="noticiasTab" class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">Notícias</button>
+                <button id="leisTab" class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">Projetos de Lei</button>
+            </div>
+
+            <!-- Tab Content -->
+            <div id="tabContent">
+                <!-- Home Tab Content -->
+                <div id="homeContent">
+                    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4">Bem-vindo ao Câmara Serviços</h2>
+                        <p class="text-gray-600 mb-4">Aqui você pode acompanhar as atividades dos vereadores, notícias da câmara e projetos de lei em andamento.</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div class="bg-blue-50 rounded-lg p-4 flex items-center">
+                                <div class="bg-blue-100 p-3 rounded-full mr-4">
+                                    <i class="fas fa-newspaper text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium text-gray-800">Notícias</h3>
+                                    <p class="text-sm text-gray-600">Acompanhe as últimas</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-green-50 rounded-lg p-4 flex items-center">
+                                <div class="bg-green-100 p-3 rounded-full mr-4">
+                                    <i class="fas fa-file-contract text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium text-gray-800">Projetos de Lei</h3>
+                                    <p class="text-sm text-gray-600">Veja os aprovados</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-indigo-50 rounded-lg p-4 flex items-center">
+                                <div class="bg-indigo-100 p-3 rounded-full mr-4">
+                                    <i class="fas fa-users text-indigo-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium text-gray-800">Vereadores</h3>
+                                    <p class="text-sm text-gray-600">Conheça sua equipe</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h3 class="font-bold text-gray-800 mb-3">Destaques</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all">
+                                <h4 class="font-medium text-blue-600 mb-1">Sessão Ordinária</h4>
+                                <p class="text-sm text-gray-600">Próxima sessão marcada para 15/06 às 19h</p>
+                            </div>
+                            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all">
+                                <h4 class="font-medium text-green-600 mb-1">Projeto Aprovado</h4>
+                                <p class="text-sm text-gray-600">PL 123/2023 sobre melhorias urbanas foi aprovado</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4">Serviços Rápidos</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <button class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all">
+                                <div class="bg-blue-100 p-3 rounded-full mb-2">
+                                    <i class="fas fa-lightbulb text-blue-600"></i>
+                                </div>
+                                <span class="text-sm font-medium">Ideias</span>
+                            </button>
+                            
+                            <button class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all">
+                                <div class="bg-green-100 p-3 rounded-full mb-2">
+                                    <i class="fas fa-calendar-alt text-green-600"></i>
+                                </div>
+                                <span class="text-sm font-medium">Agendamento</span>
+                            </button>
+                            
+                            <button class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all">
+                                <div class="bg-indigo-100 p-3 rounded-full mb-2">
+                                    <i class="fas fa-file-alt text-indigo-600"></i>
+                                </div>
+                                <span class="text-sm font-medium">Ofícios</span>
+                            </button>
+                            
+                            <button class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all">
+                                <div class="bg-purple-100 p-3 rounded-full mb-2">
+                                    <i class="fas fa-file-signature text-purple-600"></i>
+                                </div>
+                                <span class="text-sm font-medium">Projetos</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Vereadores Tab Content -->
+                <div id="vereadoresContent" class="hidden">
+                    <h2 class="text-xl font-bold text-gray-800 mb-6">Conheça nossos vereadores</h2>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        <!-- Vereador 1 -->
+                        <div class="vereador-card bg-white rounded-lg shadow-md overflow-hidden transition-all cursor-pointer" data-vereador="chapinha">
+                            <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="Chapinha" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-bold text-gray-800">Chapinha</h3>
+                                <p class="text-sm text-gray-600">Partido: ABC</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Vereador 2 -->
+                        <div class="vereador-card bg-white rounded-lg shadow-md overflow-hidden transition-all cursor-pointer" data-vereador="charles-neves">
+                            <img src="https://randomuser.me/api/portraits/men/2.jpg" alt="Charles Neves" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-bold text-gray-800">Charles Neves</h3>
+                                <p class="text-sm text-gray-600">Partido: DEF</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Vereador 3 -->
+                        <div class="vereador-card bg-white rounded-lg shadow-md overflow-hidden transition-all cursor-pointer" data-vereador="dudu-turismo">
+                            <img src="https://randomuser.me/api/portraits/men/3.jpg" alt="Dudu do Turismo" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-bold text-gray-800">Dudu do Turismo</h3>
+                                <p class="text-sm text-gray-600">Partido: GHI</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Vereador 4 -->
+                        <div class="vereador-card bg-white rounded-lg shadow-md overflow-hidden transition-all cursor-pointer" data-vereador="edinho-rodrigues">
+                            <img src="https://randomuser.me/api/portraits/men/4.jpg" alt="Edinho Rodrigues" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-bold text-gray-800">Edinho Rodrigues</h3>
+                                <p class="text-sm text-gray-600">Partido: JKL</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Vereador 5 -->
+                        <div class="vereador-card bg-white rounded-lg shadow-md overflow-hidden transition-all cursor-pointer" data-vereador="greg-duarte">
+                            <img src="https://randomuser.me/api/portraits/men/5.jpg" alt="Greg Duarte" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-bold text-gray-800">Greg Duarte</h3>
+                                <p class="text-sm text-gray-600">Partido: MNO</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Vereador 6 -->
+                        <div class="vereador-card bg-white rounded-lg shadow-md overflow-hidden transition-all cursor-pointer" data-vereador="helinho-sindicato">
+                            <img src="https://randomuser.me/api/portraits/men/6.jpg" alt="Helinho do Sindicato" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-bold text-gray-800">Helinho do Sindicato</h3>
+                                <p class="text-sm text-gray-600">Partido: PQR</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Vereador 7 -->
+                        <div class="vereador-card bg-white rounded-lg shadow-md overflow-hidden transition-all cursor-pointer" data-vereador="jane-veiga">
+                            <img src="https://randomuser.me/api/portraits/women/7.jpg" alt="Jane Veiga" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-bold text-gray-800">Jane Veiga</h3>
+                                <p class="text-sm text-gray-600">Partido: STU</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Vereador 8 -->
+                        <div class="vereador-card bg-white rounded-lg shadow-md overflow-hidden transition-all cursor-pointer" data-vereador="jorginho-brum">
+                            <img src="https://randomuser.me/api/portraits/men/8.jpg" alt="Jorginho Brum" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-bold text-gray-800">Jorginho Brum</h3>
+                                <p class="text-sm text-gray-600">Partido: VWX</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Vereador 9 -->
+                        <div class="vereador-card bg-white rounded-lg shadow-md overflow-hidden transition-all cursor-pointer" data-vereador="kelven-saude">
+                            <img src="https://randomuser.me/api/portraits/men/9.jpg" alt="Kelven da Saúde" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-bold text-gray-800">Kelven da Saúde</h3>
+                                <p class="text-sm text-gray-600">Partido: YZA</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Vereador 10 -->
+                        <div class="vereador-card bg-white rounded-lg shadow-md overflow-hidden transition-all cursor-pointer" data-vereador="leo-marmoraria">
+                            <img src="https://randomuser.me/api/portraits/men/10.jpg" alt="Léo Marmoraria" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-bold text-gray-800">Léo Marmoraria</h3>
+                                <p class="text-sm text-gray-600">Partido: BCD</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Vereador 11 -->
+                        <div class="vereador-card bg-white rounded-lg shadow-md overflow-hidden transition-all cursor-pointer" data-vereador="marcelinho-bob">
+                            <img src="https://randomuser.me/api/portraits/men/11.jpg" alt="Marcelinho Bob" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-bold text-gray-800">Marcelinho Bob</h3>
+                                <p class="text-sm text-gray-600">Partido: EFG</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Vereador 12 -->
+                        <div class="vereador-card bg-white rounded-lg shadow-md overflow-hidden transition-all cursor-pointer" data-vereador="marquinho-coelho">
+                            <img src="https://randomuser.me/api/portraits/men/12.jpg" alt="Marquinho Coelho" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-bold text-gray-800">Marquinho Coelho</h3>
+                                <p class="text-sm text-gray-600">Partido: HIJ</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Vereador 13 -->
+                        <div class="vereador-card bg-white rounded-lg shadow-md overflow-hidden transition-all cursor-pointer" data-vereador="nilsinho-batalhador">
+                            <img src="https://randomuser.me/api/portraits/men/13.jpg" alt="Nilsinho Batalhador" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-bold text-gray-800">Nilsinho Batalhador</h3>
+                                <p class="text-sm text-gray-600">Partido: KLM</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Vereador 14 -->
+                        <div class="vereador-card bg-white rounded-lg shadow-md overflow-hidden transition-all cursor-pointer" data-vereador="sargento-timoteo">
+                            <img src="https://randomuser.me/api/portraits/men/14.jpg" alt="Sargento Timóteo" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-bold text-gray-800">Sargento Timóteo</h3>
+                                <p class="text-sm text-gray-600">Partido: NOP</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Vereador 15 -->
+                        <div class="vereador-card bg-white rounded-lg shadow-md overflow-hidden transition-all cursor-pointer" data-vereador="titi-brasil">
+                            <img src="https://randomuser.me/api/portraits/men/15.jpg" alt="Titi Brasil" class="w-full h-40 object-cover">
+                            <div class="p-4">
+                                <h3 class="font-bold text-gray-800">Titi Brasil</h3>
+                                <p class="text-sm text-gray-600">Partido: QRS</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Notícias Tab Content -->
+                <div id="noticiasContent" class="hidden">
+                    <h2 class="text-xl font-bold text-gray-800 mb-6">Notícias da Câmara</h2>
+                    
+                    <div class="space-y-4">
+                        <!-- Notícia 1 -->
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg">
+                            <div class="p-6">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="text-sm text-blue-600 font-medium">Sessão Legislativa</span>
+                                    <span class="text-sm text-gray-500">10/06/2023</span>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-800 mb-2">Câmara aprova projeto de revitalização do centro</h3>
+                                <p class="text-gray-600 mb-4">O projeto foi aprovado por unanimidade e agora segue para sanção do prefeito. A proposta prevê investimentos de R$ 2,5 milhões na revitalização da área central da cidade.</p>
+                                <div class="flex justify-end">
+                                    <button class="text-blue-600 font-medium hover:text-blue-800 transition-all">Ler mais</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Notícia 2 -->
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg">
+                            <div class="p-6">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="text-sm text-green-600 font-medium">Educação</span>
+                                    <span class="text-sm text-gray-500">08/06/2023</span>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-800 mb-2">Vereadores visitam escolas municipais</h3>
+                                <p class="text-gray-600 mb-4">Comissão de educação da câmara realizou visita a 5 escolas municipais para verificar as condições de infraestrutura e ouvir demandas de professores e alunos.</p>
+                                <div class="flex justify-end">
+                                    <button class="text-blue-600 font-medium hover:text-blue-800 transition-all">Ler mais</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Notícia 3 -->
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg">
+                            <div class="p-6">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="text-sm text-purple-600 font-medium">Saúde</span>
+                                    <span class="text-sm text-gray-500">05/06/2023</span>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-800 mb-2">Novo ambulatório será construído no bairro Jardim</h3>
+                                <p class="text-gray-600 mb-4">A câmara aprovou emenda parlamentar que destina R$ 1,2 milhão para a construção de um novo ambulatório no bairro Jardim, que atualmente não possui unidades de saúde.</p>
+                                <div class="flex justify-end">
+                                    <button class="text-blue-600 font-medium hover:text-blue-800 transition-all">Ler mais</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-center">
+                        <button class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-all">
+                            Carregar mais notícias
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Leis Tab Content -->
+                <div id="leisContent" class="hidden">
+                    <h2 class="text-xl font-bold text-gray-800 mb-6">Projetos de Lei</h2>
+                    
+                    <div class="mb-6 flex space-x-2 overflow-x-auto pb-2">
+                        <button class="px-4 py-1 bg-blue-600 text-white rounded-full text-sm font-medium">Todos</button>
+                        <button class="px-4 py-1 bg-gray-200 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-300 transition-all">Aprovados</button>
+                        <button class="px-4 py-1 bg-gray-200 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-300 transition-all">Em andamento</button>
+                        <button class="px-4 py-1 bg-gray-200 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-300 transition-all">Vetados</button>
+                        <button class="px-4 py-1 bg-gray-200 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-300 transition-all">Sanções</button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <!-- Lei 1 -->
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg">
+                            <div class="p-6">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="text-sm font-medium px-2 py-1 bg-green-100 text-green-800 rounded">Aprovado</span>
+                                    <span class="text-sm text-gray-500">PL 123/2023</span>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-800 mb-2">Revitalização de praças públicas</h3>
+                                <p class="text-gray-600 mb-4">Dispõe sobre a revitalização de 5 praças públicas nos bairros centrais, com investimento previsto de R$ 1,8 milhão.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">Autor: Chapinha</span>
+                                    <button class="text-blue-600 font-medium hover:text-blue-800 transition-all">Detalhes</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Lei 2 -->
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg">
+                            <div class="p-6">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="text-sm font-medium px-2 py-1 bg-blue-100 text-blue-800 rounded">Em andamento</span>
+                                    <span class="text-sm text-gray-500">PL 145/2023</span>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-800 mb-2">Programa de incentivo a pequenos negócios</h3>
+                                <p class="text-gray-600 mb-4">Institui programa municipal de incentivo a pequenos negócios com redução de impostos nos dois primeiros anos de atividade.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">Autor: Charles Neves</span>
+                                    <button class="text-blue-600 font-medium hover:text-blue-800 transition-all">Detalhes</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Lei 3 -->
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg">
+                            <div class="p-6">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="text-sm font-medium px-2 py-1 bg-green-100 text-green-800 rounded">Aprovado</span>
+                                    <span class="text-sm text-gray-500">PL 98/2023</span>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-800 mb-2">Ampliação do horário de funcionamento do comércio</h3>
+                                <p class="text-gray-600 mb-4">Permite o funcionamento do comércio até as 22h em dias úteis e até as 20h aos sábados em toda a cidade.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">Autor: Dudu do Turismo</span>
+                                    <button class="text-blue-600 font-medium hover:text-blue-800 transition-all">Detalhes</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-center">
+                        <button class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-all">
+                            Carregar mais projetos
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Vereador Modal (hidden by default) -->
+        <div id="vereadorModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-screen overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h2 id="vereadorNome" class="text-2xl font-bold text-gray-800">Chapinha</h2>
+                            <p id="vereadorPartido" class="text-gray-600">Partido: ABC</p>
+                        </div>
+                        <button id="closeVereadorModal" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="flex flex-col md:flex-row gap-6 mb-6">
+                        <div class="w-full md:w-1/3">
+                            <img id="vereadorFoto" src="https://randomuser.me/api/portraits/men/1.jpg" alt="Foto do Vereador" class="w-full rounded-lg shadow-md">
+                        </div>
+                        
+                        <div class="w-full md:w-2/3">
+                            <h3 class="text-lg font-bold text-gray-800 mb-2">Sobre</h3>
+                            <p id="vereadorBio" class="text-gray-600 mb-4">Vereador eleito em 2020 com 5.432 votos. Formado em Administração de Empresas, atuou como empresário no setor de comércio antes de ingressar na política. É membro das comissões de Finanças e de Urbanismo.</p>
+                            
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Telefone</h4>
+                                    <p class="text-gray-800">(XX) XXXX-XXXX</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">E-mail</h4>
+                                    <p class="text-gray-800">vereador@camara.gov.br</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Mandato</h4>
+                                    <p class="text-gray-800">2021-2024</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Comissões</h4>
+                                    <p class="text-gray-800">Finanças, Urbanismo</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex space-x-2">
+                                <a href="#" class="p-2 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition-all">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="#" class="p-2 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition-all">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                                <a href="#" class="p-2 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition-all">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="#" class="p-2 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition-all">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Abas do Vereador -->
+                    <div class="border-b border-gray-200 mb-6">
+                        <div class="flex space-x-4">
+                            <button class="vereador-tab tab-active px-4 py-2 text-sm font-medium" data-tab="projetos">Projetos</button>
+                            <button class="vereador-tab px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700" data-tab="noticias">Notícias</button>
+                            <button class="vereador-tab px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700" data-tab="servicos">Serviços</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Conteúdo das Abas -->
+                    <div id="vereadorTabContent">
+                        <!-- Projetos -->
+                        <div id="projetosContent" class="space-y-4">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h4 class="font-bold text-gray-800 mb-2">PL 123/2023 - Revitalização de praças públicas</h4>
+                                <p class="text-gray-600 text-sm mb-2">Status: Aprovado</p>
+                                <p class="text-gray-600 text-sm">Dispõe sobre a revitalização de 5 praças públicas nos bairros centrais.</p>
+                            </div>
+                            
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h4 class="font-bold text-gray-800 mb-2">PL 87/2023 - Criação de ciclovias</h4>
+                                <p class="text-gray-600 text-sm mb-2">Status: Em tramitação</p>
+                                <p class="text-gray-600 text-sm">Projeto para criação de 15km de ciclovias interligando os principais bairros.</p>
+                            </div>
+                            
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h4 class="font-bold text-gray-800 mb-2">PL 45/2022 - Programa de coleta seletiva</h4>
+                                <p class="text-gray-600 text-sm mb-2">Status: Aprovado</p>
+                                <p class="text-gray-600 text-sm">Institui programa municipal de coleta seletiva em parceria com cooperativas de reciclagem.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Notícias -->
+                        <div id="noticiasContent" class="hidden space-y-4">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h4 class="font-bold text-gray-800 mb-2">Chapinha participa de inauguração de praça revitalizada</h4>
+                                <p class="text-gray-600 text-sm mb-2">15/05/2023</p>
+                                <p class="text-gray-600 text-sm">O vereador esteve presente na inauguração da Praça Central, que passou por revitalização através de projeto de sua autoria.</p>
+                            </div>
+                            
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h4 class="font-bold text-gray-800 mb-2">Vereador propõe audiência pública sobre mobilidade urbana</h4>
+                                <p class="text-gray-600 text-sm mb-2">02/05/2023</p>
+                                <p class="text-gray-600 text-sm">A audiência acontecerá no próximo dia 20 e contará com a presença de especialistas e representantes do poder público.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Serviços -->
+                        <div id="servicosContent" class="hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                <div class="bg-blue-50 rounded-lg p-4 flex flex-col">
+                                    <h4 class="font-bold text-gray-800 mb-2 flex items-center">
+                                        <i class="fas fa-lightbulb text-blue-600 mr-2"></i> Enviar Ideia
+                                    </h4>
+                                    <p class="text-gray-600 text-sm mb-4">Compartilhe suas ideias para melhorar nossa cidade.</p>
+                                    <button class="mt-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all text-sm">Enviar</button>
+                                </div>
+                                
+                                <div class="bg-green-50 rounded-lg p-4 flex flex-col">
+                                    <h4 class="font-bold text-gray-800 mb-2 flex items-center">
+                                        <i class="fas fa-calendar-alt text-green-600 mr-2"></i> Agendamento
+                                    </h4>
+                                    <p class="text-gray-600 text-sm mb-4">Agende um horário para conversar com o vereador.</p>
+                                    <button class="mt-auto px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-all text-sm">Agendar</button>
+                                </div>
+                                
+                                <div class="bg-purple-50 rounded-lg p-4 flex flex-col">
+                                    <h4 class="font-bold text-gray-800 mb-2 flex items-center">
+                                        <i class="fas fa-file-alt text-purple-600 mr-2"></i> Solicitar Ofício
+                                    </h4>
+                                    <p class="text-gray-600 text-sm mb-4">Solicite um ofício para demandas específicas.</p>
+                                    <button class="mt-auto px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-all text-sm">Solicitar</button>
+                                </div>
+                                
+                                <div class="bg-indigo-50 rounded-lg p-4 flex flex-col">
+                                    <h4 class="font-bold text-gray-800 mb-2 flex items-center">
+                                        <i class="fas fa-file-signature text-indigo-600 mr-2"></i> Projetos de Lei
+                                    </h4>
+                                    <p class="text-gray-600 text-sm mb-4">Acompanhe os projetos de lei deste vereador.</p>
+                                    <button class="mt-auto px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-all text-sm">Ver Projetos</button>
+                                </div>
+                            </div>
+                            
+                            <h4 class="font-bold text-gray-800 mb-2">Localização do Gabinete</h4>
+                            <div class="map-container bg-gray-200 rounded-lg mb-4 flex items-center justify-center">
+                                <p class="text-gray-600">Mapa do gabinete parlamentar</p>
+                            </div>
+                            
+                            <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                <h4 class="font-bold text-gray-800 mb-2">Endereço</h4>
+                                <p class="text-gray-600">Câmara Municipal - Gabinete 25<br>Rua Principal, 123 - Centro<br>CEP: 12345-678</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulated login functionality
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple validation
+            if (email && password) {
+                // Hide login screen and show app
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('appContainer').classList.remove('hidden');
+            } else {
+                alert('Por favor, preencha todos os campos.');
+            }
+        });
+        
+        // Google login simulation
+        document.getElementById('googleLogin').addEventListener('click', function() {
+            // Hide login screen and show app
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('appContainer').classList.remove('hidden');
+        });
+        
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            // Show login screen and hide app
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('appContainer').classList.add('hidden');
+        });
+        
+        // Tab switching functionality
+        const tabs = ['home', 'vereadores', 'noticias', 'leis'];
+        
+        tabs.forEach(tab => {
+            const tabBtn = document.getElementById(`${tab}Tab`);
+            const tabContent = document.getElementById(`${tab}Content`);
+            
+            tabBtn.addEventListener('click', () => {
+                // Hide all tab contents
+                tabs.forEach(t => {
+                    document.getElementById(`${t}Content`).classList.add('hidden');
+                    document.getElementById(`${t}Tab`).classList.remove('tab-active');
+                    document.getElementById(`${t}Tab`).classList.add('text-gray-500');
+                });
+                
+                // Show selected tab content
+                tabContent.classList.remove('hidden');
+                tabBtn.classList.add('tab-active');
+                tabBtn.classList.remove('text-gray-500');
+            });
+        });
+        
+        // Vereador card click functionality
+        document.querySelectorAll('.vereador-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const vereadorId = this.getAttribute('data-vereador');
+                // In a real app, we would fetch vereador data based on ID
+                
+                // For demo purposes, we'll just show the modal with some data
+                document.getElementById('vereadorModal').classList.remove('hidden');
+                
+                // Set vereador data in modal
+                const nome = this.querySelector('h3').textContent;
+                const partido = this.querySelector('p').textContent;
+                const foto = this.querySelector('img').src;
+                
+                document.getElementById('vereadorNome').textContent = nome;
+                document.getElementById('vereadorPartido').textContent = partido;
+                document.getElementById('vereadorFoto').src = foto;
+            });
+        });
+        
+        // Close vereador modal
+        document.getElementById('closeVereadorModal').addEventListener('click', function() {
+            document.getElementById('vereadorModal').classList.add('hidden');
+        });
+        
+        // Vereador tab switching
+        const vereadorTabs = ['projetos', 'noticias', 'servicos'];
+        
+        document.querySelectorAll('.vereador-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // Remove active class from all tabs
+                document.querySelectorAll('.vereador-tab').forEach(t => {
+                    t.classList.remove('tab-active');
+                    t.classList.add('text-gray-500');
+                });
+                
+                // Add active class to clicked tab
+                this.classList.add('tab-active');
+                this.classList.remove('text-gray-500');
+                
+                // Hide all tab contents
+                vereadorTabs.forEach(t => {
+                    document.getElementById(`${t}Content`).classList.add('hidden');
+                });
+                
+                // Show selected tab content
+                document.getElementById(`${tabId}Content`).classList.remove('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
